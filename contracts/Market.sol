@@ -59,6 +59,9 @@ contract NFTMarket is ReentrancyGuard {
     _itemIds.increment();
     uint256 itemId = _itemIds.current();
 
+    console.log("address-0: ", address(0));
+    // console.log("address: ", address);
+
     idToMarketItem[itemId] =  MarketItem(
       itemId,
       nftContract,
