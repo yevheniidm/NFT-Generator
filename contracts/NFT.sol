@@ -15,6 +15,7 @@ contract NFT is ERC721URIStorage {
 
     constructor(address marketplaceAddress) ERC721("Metaverse Tokens", "METT") {
         contractAddress = marketplaceAddress;
+        
     }
 
     function createToken(string memory tokenURI) public returns (uint) {
@@ -22,6 +23,7 @@ contract NFT is ERC721URIStorage {
         uint256 newItemId = _tokenIds.current();
 
         _mint(msg.sender, newItemId);
+        console.log("sender", msg.sender);
         _setTokenURI(newItemId, tokenURI);
         setApprovalForAll(contractAddress, true);
         return newItemId;
