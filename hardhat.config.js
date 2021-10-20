@@ -1,7 +1,7 @@
 /* hardhat.config.js */
 require("@nomiclabs/hardhat-waffle")
-const fs = require('fs')
-const privateKey = fs.readFileSync(".secret").toString().trim() || "01234567890123456789"
+// const fs = require('fs')
+// const privateKey = fs.readFileSync(".secret").toString().trim() || "01234567890123456789"
 
 module.exports = {
   defaultNetwork: "hardhat",
@@ -9,10 +9,10 @@ module.exports = {
     hardhat: {
       chainId: 1337
     },
-    mumbai: {
-      url: "https://rpc-mumbai.matic.today",
-      accounts: [privateKey]
-    }
+    // mumbai: {
+    //   url: "https://rpc-mumbai.matic.today",
+    //   accounts: [privateKey]
+    // }
   },
   solidity: {
     version: "0.8.4",
