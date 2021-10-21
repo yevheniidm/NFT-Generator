@@ -57,25 +57,25 @@ export default function Home() {
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
     /* user will be prompted to pay the asking proces to complete the transaction */
-    // const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')   
-    // const transaction = await contract.createMarketSale(nftaddress, nft.tokenId, {
-    //   value: price
-    // })
+    const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')   
+    const transaction = await contract.createMarketSale(nftaddress, nft.tokenId, {
+      value: price
+    })
     
 
     // const price = ethers.utils.parseUnits(nft.price, 18)
 
-    var decimalPlaces = 18;
-    var price = ethers.utils.parseUnits(nft.price, decimalPlaces);
+    // var decimalPlaces = 18;
+    // var price = ethers.utils.parseUnits(nft.price, decimalPlaces);
 
-    const myToken = new ethers.Contract(mytokenaddress, MyToken.abi, signer);
-    await myToken.approve(nftmarketaddress, price);
+    // const myToken = new ethers.Contract(mytokenaddress, MyToken.abi, signer);
+    // await myToken.approve(nftmarketaddress, price);
 
-    console.log(11111);
+    // console.log(11111);
 
   
-    const transaction = await contract.createMarketSale(nftaddress, mytokenaddress, nft.tokenId, price)
-    console.log(93939)
+    // const transaction = await contract.createMarketSale(nftaddress, mytokenaddress, nft.tokenId, price)
+    // console.log(93939)
 
     await transaction.wait()
     loadNFTs()
