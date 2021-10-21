@@ -5,11 +5,12 @@ import axios from 'axios'
 import Web3Modal from "web3modal"
 
 import {
-  nftaddress, nftmarketaddress
+  nftaddress, nftmarketaddress, mytokenaddress
 } from '../config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import Market from '../artifacts/contracts/Market.sol/NFTMarket.json'
+import MyToken from '../artifacts/contracts/MyToken.sol/MyToken.json'
 
 export default function Home() {
   const [nfts, setNfts] = useState([])
@@ -44,6 +45,7 @@ export default function Home() {
       return item
     }))
     setNfts(items)
+    console.log(nfts);
     setLoadingState('loaded') 
   }
   async function buyNft(nft) {
@@ -55,13 +57,61 @@ export default function Home() {
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
     /* user will be prompted to pay the asking proces to complete the transaction */
-    const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')   
-    const transaction = await contract.createMarketSale(nftaddress, nft.tokenId, {
-      value: price
-    })
+    // const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')   
+    // const transaction = await contract.createMarketSale(nftaddress, nft.tokenId, {
+    //   value: price
+    // })
+    
+
+    // const price = ethers.utils.parseUnits(nft.price, 18)
+
+    var decimalPlaces = 18;
+    var price = ethers.utils.parseUnits(nft.price, decimalPlaces);
+
+    const myToken = new ethers.Contract(mytokenaddress, MyToken.abi, signer);
+    await myToken.approve(nftmarketaddress, price);
+
+    console.log(11111);
+
+  
+    const transaction = await contract.createMarketSale(nftaddress, mytokenaddress, nft.tokenId, price)
+    console.log(93939)
+
     await transaction.wait()
     loadNFTs()
   }
+
+  // async function buyItem(nft) {
+  //   /* needs the user to sign the transaction, so will use Web3Provider and sign it */
+  //   const web3Modal = new Web3Modal()
+  //   const connection = await web3Modal.connect()
+  //   const provider = new ethers.providers.Web3Provider(connection)
+  //   const signer = provider.getSigner()
+  //   const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    
+  
+  //   const myToken = new ethers.Contract(mytokenaddress, MyToken.abi, signer)
+  //   // console.log(nft.price)
+  //   var decimalPlaces = 18;
+  //   var amount = ethers.utils.parseUnits(nft.price, decimalPlaces);
+
+    
+
+  //   myToken.transfer(nft.seller, amount);
+  //   contract.sellItem(nft.seller);
+  //   // contract.sellItem(nft.seller);
+    
+
+  //   // const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')    
+  //   // await _token.transfer(nft.seller, eval(nft.price));
+  //   // const sell = await contract.sellItem(nft.tokenId)
+  //   // const price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
+  //   // const sell = await contract.sellItem(MyToken.tokenId)
+  //   // await sell.wait()
+  //   // loadNFTs()
+  // }
+
+
   if (loadingState === 'loaded' && !nfts.length) return (<h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>)
   return (
     <div className="flex justify-center">
@@ -78,7 +128,8 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="p-4 bg-black">
-                  <p className="text-2xl mb-4 font-bold text-white">{nft.price} ETH</p>
+                  <p className="text-2xl mb-4 font-bold text-white">{nft.price} MYT</p>
+                  {/* <button className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => buyItem(nft)}>Buy</button> */}
                   <button className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => buyNft(nft)}>Buy</button>
                 </div>
               </div>

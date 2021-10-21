@@ -5,6 +5,7 @@ pragma solidity ^0.8.3;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "hardhat/console.sol";
 
@@ -74,6 +75,7 @@ contract NFTMarket is ReentrancyGuard {
 
     IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
+
     emit MarketItemCreated(
       itemId,
       nftContract,
@@ -88,15 +90,37 @@ contract NFTMarket is ReentrancyGuard {
   /* Creates the sale of a marketplace item */
   /* Transfers ownership of the item, as well as funds between parties */
   function createMarketSale(
-    address nftContract,
-    uint256 itemId
-    ) public payable nonReentrant {
+    address nftAddress,
+    address myTokenAddress,
+    uint256 itemId,
+    uint256 amount
+    ) public payable {
     uint price = idToMarketItem[itemId].price;
     uint tokenId = idToMarketItem[itemId].tokenId;
-    require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+    require(amount == price, "Please submit the asking price in order to complete the purchase");
+    // idToMarketItem[itemId].seller.transfer(msg.value);
+    IERC721(nftAddress).transferFrom(address(this), msg.sender, tokenId);
+    IERC20(myTokenAddress).transferFrom(msg.sender, idToMarketItem[itemId].seller, price);
+    
+    idToMarketItem[itemId].owner = payable(msg.sender);
+    idToMarketItem[itemId].sold = true;
+    _itemsSold.increment();
+    payable(owner).transfer(listingPrice);
+  }
 
-    idToMarketItem[itemId].seller.transfer(msg.value);
-    IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+  function sellItem( 
+    address nftAddress,
+    address myTokenAddress,
+    uint256 itemId,
+    uint256 amount
+    ) public payable {
+    uint price = idToMarketItem[itemId].price;
+    uint tokenId = idToMarketItem[itemId].tokenId;
+    require(amount == price, "Please submit the asking price in order to complete the purchase");
+    // idToMarketItem[itemId].seller.transfer(amount);
+    IERC721(nftAddress).transferFrom(address(this), msg.sender, tokenId);
+    IERC20(myTokenAddress).transferFrom(msg.sender, idToMarketItem[itemId].seller, price);
+    
     idToMarketItem[itemId].owner = payable(msg.sender);
     idToMarketItem[itemId].sold = true;
     _itemsSold.increment();
@@ -108,7 +132,6 @@ contract NFTMarket is ReentrancyGuard {
     uint itemCount = _itemIds.current();
     uint unsoldItemCount = _itemIds.current() - _itemsSold.current();
     uint currentIndex = 0;
-
     MarketItem[] memory items = new MarketItem[](unsoldItemCount);
     for (uint i = 0; i < itemCount; i++) {
       if (idToMarketItem[i + 1].owner == address(0)) {
