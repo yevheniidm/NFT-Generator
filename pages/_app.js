@@ -1,8 +1,27 @@
 /* pages/_app.js */
 import '../styles/globals.css'
-import Link from 'next/link'
+import Web3Modal from 'web3modal'
+import { ethers } from 'ethers'
+import { useEffect, useState } from 'react'
+// import { useEthers, useEtherBalance } from "@usedapp/core";
+// import WalletConnectProvider from '@walletconnect/web3-provider'
 
 function MyApp({ Component, pageProps }) {
+  // const {activateBrowserWallet, account } = useEthers();
+  // const etherBalance = useEtherBalance(account);
+  // const [address, setMinting] = useState(false);
+  const [address, setConnection] = useState(null);
+  
+  async function showMetamask() {
+    
+    const web3Modal = new Web3Modal()
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)    
+    const signer = provider.getSigner()
+    const address = await signer.getAddress();
+    setConnection(address);
+    
+  }
   return (
     <div className="main">
       <header id="header">
@@ -48,7 +67,18 @@ function MyApp({ Component, pageProps }) {
                     {/* Navbar Action Button */}
                     <ul className="navbar-nav action">
                         <li className="nav-item ml-3">
-                            <a href="/wallet-connect" className="btn ml-lg-auto btn-bordered-white"><i className="icon-wallet mr-md-2" />Wallet Connect</a>
+                          {
+                            !address && (
+                              <a href="#" className="btn ml-lg-auto btn-bordered-white" onClick={showMetamask}><i className="icon-wallet mr-md-2" />Wallet Connect</a>
+                            )
+                          }
+
+                          {
+                            address && (
+                              <span href="#" className="btn ml-lg-auto btn-bordered-white">{address}</span>
+                            )
+                          }
+                              
                         </li>
                     </ul>
                 </div>
